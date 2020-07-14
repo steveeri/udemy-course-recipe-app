@@ -17,12 +17,6 @@ export class HeaderComponent  implements OnInit {
 
  onSelect(feature: string) {
    this.featureSelected.emit(feature);
-
-   if (feature === "recipe") {
-
-   } else if (feature === "shopping-list") {
-
-   }
  }
 
 }
