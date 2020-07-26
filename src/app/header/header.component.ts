@@ -5,6 +5,7 @@ import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { tap, debounceTime } from 'rxjs/operators';
+import { User } from '../auth/user.modal';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ import { tap, debounceTime } from 'rxjs/operators';
 export class HeaderComponent implements OnInit, OnDestroy {
 
   userAuthenticated = false;
+  private userSubs : Subscription = null;
   private timer : Subscription = null;
 
   constructor(
@@ -21,30 +23,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService) {}
 
   ngOnInit() {
-    this.authService.userAuthenticationChanged.subscribe((authStatus:boolean) => {
+    this.userSubs = this.authService.user.subscribe((user:User) => {
       if (this.timer != null) { this.timer.unsubscribe(); }
-
       const thisTimer = new EventEmitter<boolean>();
-      this.timer = thisTimer.pipe(debounceTime(2000)).subscribe((status : boolean) => {
+      this.timer = thisTimer.pipe(debounceTime(1500)).subscribe((status : boolean) => {
         console.log("after debouce running code = " + status);
-        this.userAuthenticated = status;
+        this.userAuthenticated = (!!user);
       });
-      thisTimer.emit(authStatus);  // emit status change.
+      thisTimer.emit(!!user);  // emit status change.
     });
   }
 
   ngOnDestroy() {
+    if (this.userSubs != null) this.userSubs.unsubscribe();
     if (this.timer != null) this.timer.unsubscribe();
   }
 
   onSignInOrOut() {
     console.log("Sign in triggered");
-    if (!this.userAuthenticated) {
-      this.router.navigate(['/auth']);
-    } else {
-      this.authService.logoutUser();
-      this.router.navigate(['/auth']);
-    }
+    this.authService.logoutUser();
   }
 
   onSaveData() {

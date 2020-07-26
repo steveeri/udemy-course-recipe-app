@@ -5,76 +5,79 @@
     <hr>
   </div>
 
-  <form (ngSubmit)="onAuthenticate(f)" #f="ngForm">
-    <div class="row col-xs-12">
-      <div class="form-group col-md-4">
-        <div class="row">
-          <label for="email" class="h4">Email:</label>
+  <div class="row col-xs-12">
+    <div *ngIf="this.isLoading" style="text-align:center"><app-spinner></app-spinner></div>
+    <form (ngSubmit)="onAuthenticate(f)" #f="ngForm" *ngIf="!this.isLoading">
+      <div class="row col-xs-12">
+        <div class="form-group col-md-4">
+          <div class="row">
+            <label for="email" class="h4">Email:</label>
+          </div>
+          <div class="row">
+            <input type="text"
+              class="form-control"
+              name="email"
+              ngModel
+              email
+              required
+              placeholder="enter account email address">
+              <span class="help-block" *ngIf="f.controls.email && f.controls.email.touched && !f.controls.email.valid">A valid email is required</span>
+          </div>
         </div>
-        <div class="row">
-          <input type="text"
-            class="form-control"
-            name="email"
-            ngModel
-            email
-            required
-            placeholder="enter account email address">
-            <span class="help-block" *ngIf="f.controls.email && f.controls.email.touched && !f.controls.email.valid">A valid email is required</span>
+
+        <div class="form-group col-md-1"></div>
+
+        <div class="form-group col-md-4">
+          <div class="row">
+            <label for="password" class="h4">Password:</label>
+          </div>
+          <div class="row">
+            <input
+              type="password"
+              class="form-control"
+              name="password"
+              ngModel
+              Password
+              required
+              minlength="6"
+              placeholder="enter 6 or more characters for password">
+              <span class="help-block" *ngIf="f.controls.password && f.controls.password.touched && !f.controls.password.valid">Password is required, Length >= 6 char</span>
+          </div>
         </div>
       </div>
 
-      <div class="form-group col-md-1"></div>
-
-      <div class="form-group col-md-4">
-        <div class="row">
-          <label for="password" class="h4">Password:</label>
+      <div class="row col-xs-12">
+        <div class="alert alert-success" role="alert" *ngIf="signInSuccess">
+          Sign In was successful.
         </div>
-        <div class="row">
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            ngModel
-            Password
-            required
-            minlength="6"
-            placeholder="enter 6 or more characters for password">
-            <span class="help-block" *ngIf="f.controls.password && f.controls.password.touched && !f.controls.password.valid">Password is required, Length >= 6 char</span>
+        <div class="alert alert-warning" role="alert" *ngIf="errorMessage">
+          {{ errorMessage }}
         </div>
       </div>
-    </div>
 
-    <div class="row col-xs-12">
-      <div class="alert alert-success" role="alert" *ngIf="signInSuccess">
-        Sign In was successful.
-      </div>
-      <div class="alert alert-warning" role="alert" *ngIf="emailExists">
-        Email already registered. Please switch to Login.
-      </div>
-    </div>
-
-    <div class="row col-xs-12">
-      <hr>
-      <button
-        type="submit"
-        style="width:160px"
-        class="btn btn-success"
-        [innerText]="this.loginMode ? 'Login' : 'Sign Up'"
-        [disabled]="!f.valid"></button>
-      <span style="width:45px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <button
-        type="button"
-        style="width:160px"
-        class="btn btn-secondary"
-        (click)="onToggleLoginMode()"
-        [innerText]="this.loginMode ? 'Switch to Sign Up' : 'Switch to Login'"></button>
-        <span style="width:45px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <div class="row col-xs-12">
+        <hr>
+        <button
+          type="submit"
+          style="width:160px"
+          class="btn btn-success"
+          [innerText]="this.loginMode ? 'Login' : 'Sign Up'"
+          [disabled]="!f.valid"></button>
+        <span style="width:45px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <button
           type="button"
-          style="width:80px"
-          class="btn btn-danger"
-          (click)="f.reset()">Clear</button>
-    </div>
-  </form>
+          style="width:160px"
+          class="btn btn-warning"
+          (click)="onToggleLoginMode()"
+          [innerText]="this.loginMode ? 'Switch to Sign Up' : 'Switch to Login'"></button>
+          <span style="width:45px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <button
+            type="button"
+            style="width:80px"
+            class="btn btn-danger"
+            (click)="f.reset()">Clear</button>
+      </div>
+    </form>
+  </div>
 
 </div>
