@@ -10,9 +10,5 @@ export class AppComponent implements OnInit {
   loadedFeature = 'recipe';
 
   constructor(private authService: AuthService) {}
-
-  ngOnInit() {
-    this.authService.autoLogin();
-  }
-
+  ngOnInit() { this.authService.autoLogin(); }
 }

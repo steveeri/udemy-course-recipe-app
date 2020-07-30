@@ -5,7 +5,7 @@ import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { tap, debounceTime } from 'rxjs/operators';
-import { User } from '../auth/user.modal';
+import { User } from '../auth/user.model';
 
 @Component({
   selector: 'app-header',

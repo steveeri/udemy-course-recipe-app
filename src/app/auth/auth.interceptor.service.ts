@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { AuthService } from './auth.service';
 import { take, exhaustMap } from 'rxjs/operators';
-import { User } from './user.modal';
+import { User } from './user.model';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {

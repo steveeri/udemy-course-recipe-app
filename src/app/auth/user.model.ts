@@ -7,5 +7,4 @@ export class User {
     else if (new Date() > this._expiryDate) return null;
     else return this._token;
   }
-
 }
