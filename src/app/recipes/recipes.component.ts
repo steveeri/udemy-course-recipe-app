@@ -11,8 +11,6 @@ export class RecipesComponent implements OnInit {
   selectedRecipe: Recipe;
 
   constructor() { }
-
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
 }

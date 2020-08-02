@@ -5,9 +5,10 @@ import { RouterModule } from '@angular/router';
 
 import { AuthComponent } from './auth.component';
 import { SharedModule } from '../shared/shared.module';
+import { AlertComponent } from '../shared/alert/alert.component';
 
 @NgModule({
-  declarations: [AuthComponent],
+  declarations: [AuthComponent,AlertComponent],
   imports: [
     CommonModule,
     FormsModule,

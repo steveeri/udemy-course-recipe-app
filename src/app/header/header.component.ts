@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
 
 import { DataStorageService } from '../shared/data-storage.service';
-import { AuthService } from '../auth/auth.service';
-import { Observable, Subscription, Subject } from 'rxjs';
-import { tap, debounceTime } from 'rxjs/operators';
-import { User } from '../auth/user.model';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from '../auth/store/auth.actions';
+import * as RecipeActions from '../recipes/store/recipe.actions';
 
 @Component({
   selector: 'app-header',
@@ -14,44 +15,42 @@ import { User } from '../auth/user.model';
 export class HeaderComponent implements OnInit, OnDestroy {
 
   userAuthenticated = false;
-  private userSubs : Subscription = null;
+  private storeSub : Subscription;
   private timer : Subscription = null;
 
   constructor(
     private dataStorageService : DataStorageService,
-    private router: Router,
-    private authService: AuthService) {}
+    private store : Store<fromApp.AppState>) {}
 
   ngOnInit() {
-    this.userSubs = this.authService.user.subscribe((user:User) => {
+    this.storeSub = this.store.select('auth').subscribe(authState => {
       if (this.timer != null) { this.timer.unsubscribe(); }
       const thisTimer = new EventEmitter<boolean>();
       this.timer = thisTimer.pipe(debounceTime(1500)).subscribe((status : boolean) => {
         console.log("after debouce running code = " + status);
-        this.userAuthenticated = (!!user);
+        this.userAuthenticated = (!!authState.user);
       });
-      thisTimer.emit(!!user);  // emit status change.
+      thisTimer.emit(!!authState.user);  // emit status change.
     });
   }
 
   ngOnDestroy() {
-    if (this.userSubs != null) this.userSubs.unsubscribe();
     if (this.timer != null) this.timer.unsubscribe();
+    if (!!this.storeSub) this.storeSub.unsubscribe();
   }
 
   onSignInOrOut() {
-    console.log("Sign in triggered");
-    this.authService.logoutUser();
+    console.log("SignIn/Out in triggered");
+    this.store.dispatch(new AuthActions.Logout());
   }
 
   onSaveData() {
     this.dataStorageService.saveRecipes();
+
   }
 
   onFetchData() {
-    this.dataStorageService.fetchRecipes().subscribe( response => {
-      console.log(response);
-    });
+    this.store.dispatch(new RecipeActions.FetchRecipes());
   }
 
 }

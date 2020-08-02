@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
 
-import { AuthService, AuthResponse } from './auth.service';
-import { Observable, Subscription } from 'rxjs';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -11,66 +13,46 @@ import { Observable, Subscription } from 'rxjs';
 })
 export class AuthComponent implements OnInit, OnDestroy {
 
-  private userSubs : Subscription = null;
+  private storeSub : Subscription;
+  private loginMode = true;
 
-  loginMode = true;
   errorMessage = null;
+  alertMessage = null;
   signInSuccess = false;
   isLoading = false;
 
-  constructor(private authService: AuthService) { }
+  constructor(private store : Store<fromApp.AppState>) { }
 
   ngOnInit(): void {
-    this.resetStatus();
-    this.userSubs = this.authService.user.subscribe(user => {
-      if (user == null) {
-        this.signInSuccess = false;
-        this.resetStatus();
-      }
-    });
+    this.storeSub = this.store.select('auth').subscribe(authState => {
+      this.signInSuccess = !this.isLoading && !!authState.user;
+      this.isLoading = authState.loading;
+      this.errorMessage = authState.authError;
+      if (this.errorMessage) this.alertMessage = this.errorMessage;
+    })
   }
 
   ngOnDestroy() {
-    if (this.userSubs != null) this.userSubs.unsubscribe();
+    if (!!this.storeSub) this.storeSub.unsubscribe();
   }
 
   onAuthenticate(form : NgForm) {
-
-    this.resetStatus();
     if (!form.valid) return;  // don't send if form is invalid.
-    this.isLoading = true;
-
     const email = form.value.email;
     const password = form.value.password;
-    console.log("onAuthenticate(login = " + this.loginMode + ") called. Email = " + email + ", password = " + password);
 
-    let authObs : Observable<AuthResponse>;
+    if (this.loginMode) this.store.dispatch(new AuthActions.LoginStart({email: email, password: password}));
+    else this.store.dispatch(new AuthActions.SignupStart({email: email, password: password}));
+  }
 
-    if (this.loginMode) authObs = this.authService.loginUser(email,password);
-    else authObs = this.authService.signUpUser(email,password);
-
-    authObs.subscribe(response => {
-      console.log(response);
-      this.resetStatus();
-      this.signInSuccess = true;
-      form.reset();
-    }, (errorInfo : {code:string, msg:string}) => {
-      console.log(errorInfo);
-      this.resetStatus();
-      this.errorMessage = errorInfo.msg;
-    });
-
+  onHandleError() {
+    this.alertMessage = null;
+    setTimeout(() => { this.store.dispatch(new AuthActions.ClearError()); }, 2000);
   }
 
   onToggleLoginMode() {
+    this.alertMessage = null;
     this.loginMode = !this.loginMode;
-    this.resetStatus();
+    this.store.dispatch(new AuthActions.ClearError());
   }
-
-  private resetStatus() {
-    this.errorMessage = null;
-    this.signInSuccess = false;
-    this.isLoading = false;
-  }
-
 }

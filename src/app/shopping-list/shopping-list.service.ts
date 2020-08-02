@@ -4,7 +4,7 @@ import { Ingredient } from '../shared/ingredient.model';
 import { Injectable } from '@angular/core';
 
 @Injectable({providedIn: 'root'})
-export class ShoppingListService {
+export class ShoppingListService_old {
   ingredientsChanged = new Subject<Ingredient[]>();
   startedEditing = new Subject<number>();
   private ingredients: Ingredient[] = [
